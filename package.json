@@ -1,0 +1,14 @@
+{
+  "name": "fgs-his-project-management",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FGS HIS – Project Management (static web app + Supabase backend)",
+  "scripts": {
+    "serve": "npx --yes serve web -l 8080",
+    "vendor": "node scripts/vendor.mjs",
+    "check": "node --check web/app.js && node --check web/config.js"
+  },
+  "dependencies": { "@supabase/supabase-js": "2.45.4" },
+  "engines": { "node": ">=18" },
+  "license": "UNLICENSED"
+}
