@@ -33,17 +33,30 @@ Deno.serve(async (req) => {
     const action = body.action;
 
     if (action === "invite") {
-      const email = String(body.email ?? "").trim().toLowerCase();
-      const full_name = String(body.full_name ?? "").trim().slice(0, 120);
-      const role = String(body.role ?? "");
-      if (!EMAIL.test(email)) return json({ error: "invalid_email" }, 400);
-      if (!ROLES.includes(role)) return json({ error: "invalid_role" }, 400);
-      const { data, error } = await admin.auth.admin.inviteUserByEmail(email, { data: { full_name } });
-      if (error || !data?.user) return json({ error: error?.message ?? "invite_failed" }, 400);
-      const { error: e2 } = await caller.from("profiles").update({ role, active: true, full_name }).eq("id", data.user.id);
-      if (e2) return json({ error: e2.message }, 400);
-      return json({ ok: true, user_id: data.user.id });
-    }
+  const email = String(body.email ?? "").trim().toLowerCase();
+  const full_name = String(body.full_name ?? "").trim().slice(0, 120);
+  const role = String(body.role ?? "");
+
+  if (!EMAIL.test(email)) return json({ error: "invalid_email" }, 400);
+  if (!ROLES.includes(role)) return json({ error: "invalid_role" }, 400);
+
+  const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
+    data: { full_name },
+    redirectTo: "https://legendary-sopapillas-d8915c.netlify.app/"
+  });
+
+  if (error || !data?.user) {
+    return json({ error: error?.message ?? "invite_failed" }, 400);
+  }
+
+  const { error: e2 } = await caller.from("profiles")
+    .update({ role, active: true, full_name })
+    .eq("id", data.user.id);
+
+  if (e2) return json({ error: e2.message }, 400);
+
+  return json({ ok: true, user_id: data.user.id });
+}
 
     if (action === "set_role") {
       const role = String(body.role ?? "");
